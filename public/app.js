@@ -750,15 +750,15 @@ async function displayProblemList() {
                             return;
                         }
 
-                        // Nếu bài tập chưa làm (màu vàng), hiển thị bài tập trong khung
-                        displayProblem(problemIndex);
+                        // Nếu bài tập chưa làm (màu vàng), hiển thị bài tập theo số thứ tự
+                        displayProblemByIndex(problemIndex);
                         progressData[problemIndex] = true; // Đánh dấu là đã làm
                         updateProblemColor(); // Cập nhật màu bài tập
 
                         await saveProgress(progressData); // Lưu tiến trình lên GitHub
-                        console.log(`✅ Bài tập ${problemIndex + 1} đã được lưu.`);
+                        console.log(`✅ Bài tập ${problemIndex} đã được lưu.`);
                     } catch (error) {
-                        console.error(`❌ Lỗi khi lưu bài tập ${problemIndex + 1}:`, error);
+                        console.error(`❌ Lỗi khi lưu bài tập ${problemIndex}:`, error);
                         alert("⚠ Có lỗi xảy ra khi lưu tiến trình! Vui lòng thử lại.");
                     }
                 });
@@ -772,6 +772,7 @@ async function displayProblemList() {
         console.error('❌ Lỗi khi hiển thị danh sách bài tập:', error);
     }
 }
+
 
 // Hàm lưu tiến trình lên GitHub
 async function saveProgress(progressData) {
