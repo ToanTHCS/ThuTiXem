@@ -699,22 +699,20 @@ async function loadProgress(studentId) {
     try {
         console.log(`📥 Đang tải tiến trình từ GitHub cho học sinh: ${studentId}...`);
 
-        // ✅ Tải mỗi học sinh từ một file riêng `<studentId>.json`
-        const studentProgressUrl = `${GITHUB_SAVE_PROGRESS_URL.replace('progress.json', `${studentId}.json`)}`;
-
-        const response = await fetch(studentProgressUrl, {
+        const response = await fetch(GITHUB_SAVE_PROGRESS_URL, {
             headers: { 'Accept': 'application/vnd.github.v3+json' }
         });
 
         if (!response.ok) {
-            console.warn(`⚠ Không có dữ liệu tiến trình cho học sinh ${studentId}. Khởi tạo tiến trình mới.`);
+            console.warn(`⚠ Không có dữ liệu tiến trình. Khởi tạo dữ liệu mới.`);
             progressData = {}; // Nếu không có dữ liệu, đặt lại rỗng
             return;
         }
 
         const data = await response.json();
         if (data && data.content) {
-            progressData = JSON.parse(atob(data.content));
+            const allProgress = JSON.parse(atob(data.content));
+            progressData = allProgress[studentId] || {}; // ✅ Chỉ lấy tiến trình của học sinh hiện tại
             console.log(`✅ Tiến trình của học sinh ${studentId} đã tải thành công:`, progressData);
         } else {
             console.warn(`⚠ Tiến trình rỗng cho học sinh ${studentId}.`);
@@ -727,7 +725,6 @@ async function loadProgress(studentId) {
         progressData = {};
     }
 }
-
 
 // Hàm hiển thị danh sách bài tập từ Google Sheets
 async function displayProblemList() {
