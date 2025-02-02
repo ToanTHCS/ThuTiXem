@@ -680,9 +680,11 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
         console.log(`📥 Đang tải tiến trình học tập của ${studentId} từ GitHub...`);
         await loadProgress(studentId);
 
-        // ✅ Cập nhật danh sách bài tập
+        // ✅ Tải danh sách bài tập sau khi đã tải tiến trình
         console.log(`📌 Đang hiển thị danh sách bài tập...`);
-        await displayProblemList();
+        await fetchProblems(); // Tải bài tập từ Google Sheet
+        await displayProblemList(); // Hiển thị danh sách bài tập
+
         console.log('✅ Danh sách bài tập đã cập nhật.');
 
         // ✅ Cập nhật tiêu đề nút lấy bài ngẫu nhiên
@@ -695,6 +697,7 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
         alert(`❌ Không thể tải tiến độ học tập. Chi tiết lỗi: ${error.message}`);
     }
 });
+
 // Hàm tải tiến trình từ GitHub
 async function loadProgress() {
     try {
