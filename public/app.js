@@ -370,29 +370,43 @@ async function generateSimilarProblem(originalProblem) {
         }
     // Hàm lưu tiến trình lên GitHub
 async function saveProgress(progressData) {
+    if (!currentStudentId) {
+        console.error("❌ Không có ID học sinh. Không thể lưu tiến trình.");
+        return;
+    }
+
     try {
-        console.log("📤 [Client] Gửi dữ liệu lên server:", JSON.stringify(progressData, null, 2));
-        const response = await fetch("/api/save-progress", {
-            method: "POST",
+        console.log(`📤 [Client] Gửi dữ liệu tiến trình của học sinh ${currentStudentId} lên GitHub...`);
+
+        // ✅ Lưu mỗi học sinh vào một file riêng theo `studentId`
+        const studentProgressUrl = `${GITHUB_SAVE_PROGRESS_URL.replace('progress.json', `${currentStudentId}.json`)}`;
+
+        const response = await fetch(studentProgressUrl, {
+            method: "PUT",
             headers: {
                 "Content-Type": "application/json",
+                "Authorization": `Bearer ${GITHUB_TOKEN}`
             },
-            body: JSON.stringify({ progressData }),
+            body: JSON.stringify({
+                message: `Cập nhật tiến trình của học sinh ${currentStudentId}`,
+                content: btoa(JSON.stringify(progressData, null, 2))
+            }),
         });
 
         const result = await response.json();
-        console.log("📤 [Client] Response từ server:", result);
+        console.log(`✅ Tiến trình của học sinh ${currentStudentId} đã lưu thành công!`, result);
 
         if (!response.ok) {
-            throw new Error("❌ Lỗi khi lưu tiến trình vào GitHub.");
+            throw new Error(`❌ Lỗi khi lưu tiến trình của học sinh ${currentStudentId}`);
         }
 
-        alert("✅ Tiến trình đã lưu thành công!");
+        alert(`✅ Tiến trình của ${currentStudentId} đã được lưu.`);
     } catch (error) {
-        console.error("❌ Lỗi khi ghi dữ liệu lên GitHub:", error);
+        console.error(`❌ Lỗi khi ghi dữ liệu lên GitHub cho học sinh ${currentStudentId}:`, error);
         alert("❌ Lỗi khi ghi dữ liệu lên GitHub! Kiểm tra console.");
     }
 }
+
     document.getElementById('submitBtn').addEventListener('click', async () => {
     const problemText = document.getElementById('problemText')?.innerHTML?.trim();
     const studentFileInput = document.getElementById('studentImage');
