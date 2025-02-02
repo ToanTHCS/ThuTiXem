@@ -445,7 +445,20 @@ async function saveProgress(progressData) {
    if (currentProblem && currentProblem.index) {
                 progressData[currentProblem.index] = true;  // ✅ Đánh dấu bài tập đã hoàn thành
                 console.log(`✅ Cập nhật tiến trình: Bài tập ${currentProblem.index} đã hoàn thành.`);
-                await saveProgress();  // ✅ Lưu lên GitHub
+                
+	   	 // ✅ Đánh dấu bài đã hoàn thành (màu xanh)
+    		progressData[currentProblemIndex] = true;
+
+   		 // ✅ Cập nhật màu sắc
+   		 const problemBoxes = document.querySelectorAll('.problem-box');
+    		problemBoxes.forEach(box => {
+        	if (parseInt(box.textContent) === currentProblemIndex) {
+           	 box.style.backgroundColor = 'green';
+        }
+    });
+
+    		// ✅ Gọi hàm lưu tiến trình
+    		await saveProgress(progressData);
                 await displayProblemList();  // ✅ Cập nhật giao diện
             }
     alert(`Bài tập đã được đánh dấu là hoàn thành!`);
