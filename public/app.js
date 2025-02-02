@@ -770,45 +770,26 @@ async function displayProblemList() {
                 }
 
                 const problemBox = document.createElement('div');
-                problemBox.textContent = problemIndex; // Chỉ hiển thị số bài, không thêm chữ "Bài"
+                problemBox.textContent = problemIndex;
                 problemBox.className = 'problem-box';
 
-function updateProblemColor(problemIndex = null) {
-    const problemBoxes = document.querySelectorAll(".problem-box");
-
-    problemBoxes.forEach(box => {
-        const index = parseInt(box.textContent, 10);
-
-        // Nếu cập nhật một bài cụ thể
-        if (problemIndex !== null && index === problemIndex) {
-            box.style.backgroundColor = progressData[problemIndex] ? 'green' : 'yellow';
-        } 
-        // Nếu không có bài cụ thể, cập nhật toàn bộ danh sách
-        else if (problemIndex === null) {
-            box.style.backgroundColor = progressData[index] ? 'green' : 'yellow';
-        }
-    });
-
-    console.log("✅ Cập nhật màu sắc bài tập:", progressData);
-}
+                function updateProblemColor() {
+                    problemBox.style.backgroundColor = progressData[problemIndex] ? 'green' : 'yellow';
+                }
 
                 updateProblemColor(); // Cập nhật màu ngay khi hiển thị
 
                 problemBox.addEventListener("click", async () => {
                     try {
                         if (progressData[problemIndex]) {
-                            // Nếu bài tập đã làm (màu xanh), hiển thị cảnh báo và không làm gì khác
                             alert("📌 Bài tập này đã làm! Vui lòng chọn bài tập khác.");
                             return;
                         }
 
-                        // Nếu bài tập chưa làm (màu vàng), hiển thị bài tập theo số thứ tự
                         displayProblemByIndex(problemIndex);
-                        progressData[problemIndex] = true; // Đánh dấu là đã làm
-                        updateProblemColor(); // Cập nhật màu bài tập
-
-                        await saveProgress(progressData); // Lưu tiến trình lên GitHub
-                        console.log(`✅ Bài tập ${problemIndex} đã được lưu.`);
+                        progressData[problemIndex] = true;
+                        updateProblemColor(); 
+                        await saveProgress(progressData);
                     } catch (error) {
                         console.error(`❌ Lỗi khi lưu bài tập ${problemIndex}:`, error);
                         alert("⚠ Có lỗi xảy ra khi lưu tiến trình! Vui lòng thử lại.");
