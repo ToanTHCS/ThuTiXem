@@ -772,26 +772,22 @@ async function displayProblemList() {
                 problemBox.className = 'problem-box';
 
                 function updateProblemColor() {
-                    problemBox.style.backgroundColor = progressData[problemIndex] ? 'green' : 'yellow';
+                    if (progressData[problemIndex]) {
+                        problemBox.style.backgroundColor = 'green'; // ✅ Bài đã hoàn thành
+                    } else if (problemIndex === currentProblemIndex) {
+                        problemBox.style.backgroundColor = 'blue'; // ✅ Bài đang làm
+                    } else {
+                        problemBox.style.backgroundColor = 'yellow'; // ✅ Bài chưa làm
+                    }
                 }
 
                 updateProblemColor(); // Cập nhật màu ngay khi hiển thị
 
-                problemBox.addEventListener("click", async () => {
-                    try {
-                        if (progressData[problemIndex]) {
-                            alert("📌 Bài tập này đã làm! Vui lòng chọn bài tập khác.");
-                            return;
-                        }
-
-                        displayProblemByIndex(problemIndex);
-                        progressData[problemIndex] = true;
-                        updateProblemColor(); 
-                        await saveProgress(progressData);
-                    } catch (error) {
-                        console.error(`❌ Lỗi khi lưu bài tập ${problemIndex}:`, error);
-                        alert("⚠ Có lỗi xảy ra khi lưu tiến trình! Vui lòng thử lại.");
-                    }
+                problemBox.addEventListener("click", () => {
+                    // ✅ Chỉ đổi màu sang `blue`, không lưu tiến trình
+                    currentProblemIndex = problemIndex;
+                    updateProblemColor();
+                    displayProblemByIndex(problemIndex);
                 });
 
                 problemContainer.appendChild(problemBox);
@@ -803,6 +799,8 @@ async function displayProblemList() {
         console.error('❌ Lỗi khi hiển thị danh sách bài tập:', error);
     }
 }
+
+
 // Khi trang tải xong, tự động tải tiến trình từ GitHub
 document.addEventListener("DOMContentLoaded", function () {
     console.log("📌 Trang đã tải xong, bắt đầu tải tiến trình từ GitHub...");
