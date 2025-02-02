@@ -551,17 +551,19 @@ async function saveProgress(progressData) {
         currentHint = null;
     }
 
-    // Cập nhật trạng thái: Đánh dấu bài đã làm
+    // ✅ Cập nhật trạng thái bài tập
     progressData[problemIndex] = true; 
     updateProblemColor(problemIndex); 
 
-    // Lưu tiến trình lên GitHub
+    // ✅ Lưu tiến trình lên GitHub
     await saveProgress(progressData);
 
-    // Cập nhật hiển thị MathJax
+    // ✅ Cập nhật hiển thị MathJax
     MathJax.typesetPromise([document.getElementById('problemText')]).catch(err => {
         console.error('MathJax rendering error:', err);
     });
+
+    console.log(`✅ Bài tập ${problemIndex} đã được lưu vào tiến trình.`);
 });
 
 document.addEventListener('DOMContentLoaded', () => {
