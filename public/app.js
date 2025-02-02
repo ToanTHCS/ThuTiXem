@@ -662,6 +662,7 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
 });
 
 // Hàm tải tiến trình từ GitHub
+// Hàm tải tiến trình từ GitHub
 async function loadProgress() {
     try {
         console.log("📥 Đang tải tiến trình từ GitHub...");
@@ -736,7 +737,6 @@ async function displayProblemList() {
                 problemBox.textContent = problemIndex; // Chỉ hiển thị số bài, không thêm chữ "Bài"
                 problemBox.className = 'problem-box';
 
- 
                 function updateProblemColor() {
                     problemBox.style.backgroundColor = progressData[problemIndex] ? 'green' : 'yellow';
                 }
@@ -744,9 +744,24 @@ async function displayProblemList() {
                 updateProblemColor(); // Cập nhật màu ngay khi hiển thị
 
                 problemBox.addEventListener("click", async () => {
-                    progressData[problemIndex] = !progressData[problemIndex];
-                    updateProblemColor(); // Cập nhật màu khi click
-                    await saveProgress(progressData); // Lưu tiến trình lên GitHub
+                    try {
+                        if (progressData[problemIndex]) {
+                            // Nếu bài tập đã làm (màu xanh), hiển thị cảnh báo và không làm gì khác
+                            alert("📌 Bài tập này đã làm! Vui lòng chọn bài tập khác.");
+                            return;
+                        }
+
+                        // Nếu bài tập chưa làm (màu vàng), hiển thị bài tập trong khung
+                        displayProblem(problemIndex);
+                        progressData[problemIndex] = true; // Đánh dấu là đã làm
+                        updateProblemColor(); // Cập nhật màu bài tập
+
+                        await saveProgress(progressData); // Lưu tiến trình lên GitHub
+                        console.log(`✅ Bài tập ${problemIndex + 1} đã được lưu.`);
+                    } catch (error) {
+                        console.error(`❌ Lỗi khi lưu bài tập ${problemIndex + 1}:`, error);
+                        alert("⚠ Có lỗi xảy ra khi lưu tiến trình! Vui lòng thử lại.");
+                    }
                 });
 
                 problemContainer.appendChild(problemBox);
@@ -791,7 +806,6 @@ document.addEventListener("DOMContentLoaded", function () {
     console.log("📌 Trang đã tải xong, bắt đầu tải tiến trình từ GitHub...");
     loadProgress();
 });
-
 
 });
 
