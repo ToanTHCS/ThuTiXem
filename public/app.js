@@ -512,7 +512,7 @@ async function saveProgress(progressData) {
                 alert('Vui lòng nhập mã học sinh');
             }
         });
-	document.getElementById('selectProblemBtn').addEventListener('click', async () => {
+document.getElementById('selectProblemBtn').addEventListener('click', async () => {
     const problemIndexInput = document.getElementById('problemIndexInput').value.trim();
 
     // Kiểm tra nếu người dùng chưa nhập số thứ tự
@@ -537,21 +537,12 @@ async function saveProgress(progressData) {
         return;
     }
 
-    // Nếu bài chưa làm, hiển thị bài tập trong khung
+    // ✅ Nếu bài chưa làm, hiển thị bài tập trong khung
     document.getElementById('problemText').innerHTML = formatProblemText(selectedProblem.problem);
 
-    // Gọi hàm tạo gợi ý
-    try {
-        currentHint = await generateHint(selectedProblem.problem);
-        console.log('🔹 Gợi ý cho bài tập đã chọn:', currentHint);
-    } catch (error) {
-        console.error('❌ Lỗi khi tạo gợi ý:', error);
-        currentHint = null;
-    }
-
-    // ✅ Cập nhật trạng thái bài tập
-    progressData[problemIndex] = true; 
-    updateProblemColor(problemIndex); 
+    // ✅ Cập nhật trạng thái bài tập (đánh dấu đã làm)
+    progressData[problemIndex] = true;  
+    updateProblemColor(problemIndex); // Cập nhật màu sắc bài tập trong danh sách
 
     // ✅ Lưu tiến trình lên GitHub
     await saveProgress(progressData);
@@ -563,7 +554,6 @@ async function saveProgress(progressData) {
 
     console.log(`✅ Bài tập ${problemIndex} đã được lưu vào tiến trình.`);
 });
-
 document.addEventListener('DOMContentLoaded', () => {
     const video = document.getElementById('cameraStream');
     const captureButton = document.getElementById('captureButton');
