@@ -773,13 +773,13 @@ async function displayProblemList() {
                 problemBox.textContent = problemIndex; // Chỉ hiển thị số bài, không thêm chữ "Bài"
                 problemBox.className = 'problem-box';
 
-    function updateProblemColor(problemIndex = null) {
+function updateProblemColor(problemIndex = null) {
     const problemBoxes = document.querySelectorAll(".problem-box");
 
     problemBoxes.forEach(box => {
         const index = parseInt(box.textContent, 10);
 
-        // Nếu đang cập nhật bài cụ thể
+        // Nếu cập nhật một bài cụ thể
         if (problemIndex !== null && index === problemIndex) {
             box.style.backgroundColor = progressData[problemIndex] ? 'green' : 'yellow';
         } 
@@ -791,7 +791,6 @@ async function displayProblemList() {
 
     console.log("✅ Cập nhật màu sắc bài tập:", progressData);
 }
-
 
                 updateProblemColor(); // Cập nhật màu ngay khi hiển thị
 
