@@ -662,7 +662,6 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
 });
 
 // Hàm tải tiến trình từ GitHub
-// Hàm tải tiến trình từ GitHub
 async function loadProgress() {
     try {
         console.log("📥 Đang tải tiến trình từ GitHub...");
