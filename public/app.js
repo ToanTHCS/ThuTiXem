@@ -378,6 +378,32 @@ async function generateSimilarProblem(originalProblem) {
             overlay.appendChild(messageBox);
             document.body.appendChild(overlay);
         }
+    // Hàm lưu tiến trình lên GitHub
+async function saveProgress(progressData) {
+    try {
+        console.log("📤 [Client] Gửi dữ liệu lên server:", JSON.stringify(progressData, null, 2));
+
+        const response = await fetch("/api/save-progress", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ progressData }),
+        });
+
+        const result = await response.json();
+        console.log("📤 [Client] Response từ server:", result);
+
+        if (!response.ok) {
+            throw new Error("❌ Lỗi khi lưu tiến trình vào GitHub.");
+        }
+
+        alert("✅ Tiến trình đã lưu thành công!");
+    } catch (error) {
+        console.error("❌ Lỗi khi ghi dữ liệu lên GitHub:", error);
+        alert("❌ Lỗi khi ghi dữ liệu lên GitHub! Kiểm tra console.");
+    }
+}
 
     document.getElementById('submitBtn').addEventListener('click', async () => {
     const problemText = document.getElementById('problemText')?.innerHTML?.trim();
@@ -772,35 +798,6 @@ async function displayProblemList() {
         console.error('❌ Lỗi khi hiển thị danh sách bài tập:', error);
     }
 }
-
-
-// Hàm lưu tiến trình lên GitHub
-async function saveProgress(progressData) {
-    try {
-        console.log("📤 [Client] Gửi dữ liệu lên server:", JSON.stringify(progressData, null, 2));
-
-        const response = await fetch("/api/save-progress", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ progressData }),
-        });
-
-        const result = await response.json();
-        console.log("📤 [Client] Response từ server:", result);
-
-        if (!response.ok) {
-            throw new Error("❌ Lỗi khi lưu tiến trình vào GitHub.");
-        }
-
-        alert("✅ Tiến trình đã lưu thành công!");
-    } catch (error) {
-        console.error("❌ Lỗi khi ghi dữ liệu lên GitHub:", error);
-        alert("❌ Lỗi khi ghi dữ liệu lên GitHub! Kiểm tra console.");
-    }
-}
-
 // Khi trang tải xong, tự động tải tiến trình từ GitHub
 document.addEventListener("DOMContentLoaded", function () {
     console.log("📌 Trang đã tải xong, bắt đầu tải tiến trình từ GitHub...");
