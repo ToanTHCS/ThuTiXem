@@ -1,4 +1,4 @@
-const GITHUB_SAVE_PROGRESS_URL = 'https://api.github.com/repos/OnToanAnhDuong/WEBMOi/contents/progress.json';
+const GITHUB_SAVE_PROGRESS_URL = 'https://api.github.com/repos/ToanTHCS/ThuTiXem/contents/progress.json';
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 
 export default async function handler(req, res) {
