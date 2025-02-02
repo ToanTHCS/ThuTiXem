@@ -1,10 +1,10 @@
 const GITHUB_SAVE_PROGRESS_URL = 'https://api.github.com/repos/ToanTHCS/ThuTiXem/contents/progress.json';
-const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN; // ✅ Chỉ lấy biến môi trường ở server-side
 
 export default async function handler(req, res) {
     if (!GITHUB_TOKEN) {
-        console.error("❌ Lỗi: GITHUB_TOKEN chưa được thiết lập!");
-        return res.status(500).json({ error: "GITHUB_TOKEN không tồn tại. Kiểm tra biến môi trường trên Vercel." });
+        console.error("❌ Lỗi: GITHUB_TOKEN chưa được thiết lập trên server!");
+        return res.status(500).json({ error: "GITHUB_TOKEN chưa tồn tại. Kiểm tra biến môi trường trên Vercel." });
     }
 
     if (req.method !== 'POST') {
@@ -13,16 +13,18 @@ export default async function handler(req, res) {
 
     console.log("📥 API nhận request:", req.body);
 
-    const { progressData } = req.body;
-    if (!progressData || typeof progressData !== "object") {
+    const { progressData, studentId } = req.body;
+    if (!progressData || typeof progressData !== "object" || !studentId) {
         console.error("❌ Lỗi: Dữ liệu không hợp lệ:", progressData);
-        return res.status(400).json({ error: "Dữ liệu không hợp lệ." });
+        return res.status(400).json({ error: "Dữ liệu không hợp lệ hoặc thiếu `studentId`." });
     }
 
     let sha = null;
+    const studentProgressUrl = GITHUB_SAVE_PROGRESS_URL.replace('progress.json', `${studentId}.json`);
+
     try {
         console.log("📥 [API] Đang lấy SHA của file JSON...");
-        const shaResponse = await fetch(GITHUB_SAVE_PROGRESS_URL, {
+        const shaResponse = await fetch(studentProgressUrl, {
             headers: {
                 'Accept': 'application/vnd.github.v3+json',
                 'Authorization': `Bearer ${GITHUB_TOKEN}`
@@ -49,14 +51,14 @@ export default async function handler(req, res) {
         console.log("📤 [API] Đang ghi dữ liệu lên GitHub...");
         const content = Buffer.from(JSON.stringify(progressData, null, 2)).toString('base64');
 
-        const saveResponse = await fetch(GITHUB_SAVE_PROGRESS_URL, {
+        const saveResponse = await fetch(studentProgressUrl, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${GITHUB_TOKEN}`
             },
             body: JSON.stringify({
-                message: 'Cập nhật tiến trình học sinh',
+                message: `Cập nhật tiến trình học sinh ${studentId}`,
                 content: content,
                 sha: sha || null
             })
