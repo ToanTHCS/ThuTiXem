@@ -133,16 +133,6 @@ function checkCameraAccess() {
             updateProgress(currentProblemScore);
         });
         // Xử lý khi học sinh đăng nhập
-        document.getElementById('loginBtn').addEventListener('click', function() {
-            const studentId = document.getElementById('studentId').value;
-            if (studentId) {
-                currentStudentId = studentId;
-                document.getElementById('loginContainer').style.display = 'none';
-                document.getElementById('mainContent').style.display = 'block';
-            } else {
-                alert('Vui lòng nhập mã học sinh');
-            }
-        });
 
 async function generateSimilarProblem(originalProblem) {
             const apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-002:generateContent';
