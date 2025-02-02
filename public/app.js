@@ -537,15 +537,17 @@ document.getElementById('selectProblemBtn').addEventListener('click', async () =
         return;
     }
 
-    // ✅ Nếu bài chưa làm, hiển thị bài tập trong khung
+    // ✅ Nếu bài chưa làm, hiển thị bài tập
     document.getElementById('problemText').innerHTML = formatProblemText(selectedProblem.problem);
 
-    // ✅ Cập nhật trạng thái bài tập (đánh dấu đã làm)
-    progressData[problemIndex] = true;  
-    updateProblemColor(problemIndex); // Cập nhật màu sắc bài tập trong danh sách
+    // ✅ Cập nhật trạng thái bài tập
+    progressData[problemIndex] = true;
+    updateProblemColor(problemIndex); // Cập nhật màu sắc trong danh sách
 
     // ✅ Lưu tiến trình lên GitHub
+    console.log("📤 Đang lưu tiến trình lên GitHub...");
     await saveProgress(progressData);
+    console.log("✅ Tiến trình đã lưu thành công!");
 
     // ✅ Cập nhật hiển thị MathJax
     MathJax.typesetPromise([document.getElementById('problemText')]).catch(err => {
@@ -554,6 +556,7 @@ document.getElementById('selectProblemBtn').addEventListener('click', async () =
 
     console.log(`✅ Bài tập ${problemIndex} đã được lưu vào tiến trình.`);
 });
+
 document.addEventListener('DOMContentLoaded', () => {
     const video = document.getElementById('cameraStream');
     const captureButton = document.getElementById('captureButton');
