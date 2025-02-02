@@ -404,7 +404,6 @@ async function saveProgress(progressData) {
         alert("❌ Lỗi khi ghi dữ liệu lên GitHub! Kiểm tra console.");
     }
 }
-
     document.getElementById('submitBtn').addEventListener('click', async () => {
     const problemText = document.getElementById('problemText')?.innerHTML?.trim();
     const studentFileInput = document.getElementById('studentImage');
