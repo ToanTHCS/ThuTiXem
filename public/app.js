@@ -736,35 +736,29 @@ async function displayProblemList() {
                 problemBox.textContent = problemIndex; // Chỉ hiển thị số bài, không thêm chữ "Bài"
                 problemBox.className = 'problem-box';
 
-            function updateProblemColor() {
-    problemBox.style.backgroundColor = progressData[problemIndex] ? 'green' : 'yellow';
+ 
+                function updateProblemColor() {
+                    problemBox.style.backgroundColor = progressData[problemIndex] ? 'green' : 'yellow';
+                }
+
+                updateProblemColor(); // Cập nhật màu ngay khi hiển thị
+
+                problemBox.addEventListener("click", async () => {
+                    progressData[problemIndex] = !progressData[problemIndex];
+                    updateProblemColor(); // Cập nhật màu khi click
+                    await saveProgress(progressData); // Lưu tiến trình lên GitHub
+                });
+
+                problemContainer.appendChild(problemBox);
+            }
+        });
+
+        console.log("✅ Danh sách bài tập đã cập nhật từ Google Sheets:", progressData);
+    } catch (error) {
+        console.error('❌ Lỗi khi hiển thị danh sách bài tập:', error);
+    }
 }
 
-updateProblemColor(); // Cập nhật màu ngay khi hiển thị
-
-problemBox.addEventListener("click", async () => {
-    try {
-        if (progressData[problemIndex]) {
-            // Nếu bài tập đã làm (màu xanh), hiển thị cảnh báo và không làm gì khác
-            alert("📌 Bài tập này đã làm! Vui lòng chọn bài tập khác.");
-            return;
-        }
-
-        // Nếu bài tập chưa làm (màu vàng), hiển thị bài tập trong khung
-        displayProblem(problemIndex); // Gọi hàm hiển thị bài tập
-        progressData[problemIndex] = true; // Đánh dấu là đã làm
-        updateProblemColor(); // Cập nhật màu bài tập
-
-        // Lưu tiến trình lên GitHub
-        await saveProgress(progressData);
-        console.log(`✅ Bài tập ${problemIndex + 1} đã được lưu.`);
-    } catch (error) {
-        console.error(`❌ Lỗi khi lưu bài tập ${problemIndex + 1}:`, error);
-        alert("⚠ Có lỗi xảy ra khi lưu tiến trình! Vui lòng thử lại.");
-    }
-});
-
-problemContainer.appendChild(problemBox);
 // Hàm lưu tiến trình lên GitHub
 async function saveProgress(progressData) {
     try {
@@ -798,6 +792,8 @@ document.addEventListener("DOMContentLoaded", function () {
     loadProgress();
 });
 
+
+});
 
 
 
