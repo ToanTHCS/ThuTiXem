@@ -783,10 +783,24 @@ async function displayProblemList() {
                 problemBox.textContent = problemIndex; // Chỉ hiển thị số bài, không thêm chữ "Bài"
                 problemBox.className = 'problem-box';
 
-                function updateProblemColor() {
-                    problemBox.style.backgroundColor = progressData[problemIndex] ? 'green' : 'yellow';
-                }
+             function updateProblemColor(problemIndex = null) {
+    const problemBoxes = document.querySelectorAll(".problem-box");
 
+    problemBoxes.forEach(box => {
+        const index = parseInt(box.textContent, 10);
+
+        // Nếu có bài cụ thể cần cập nhật
+        if (problemIndex !== null && index === problemIndex) {
+            box.style.backgroundColor = progressData[problemIndex] ? 'green' : 'yellow';
+        }
+        // Nếu không có bài cụ thể, cập nhật tất cả bài
+        else if (problemIndex === null) {
+            box.style.backgroundColor = progressData[index] ? 'green' : 'yellow';
+        }
+    });
+
+    console.log("✅ Cập nhật màu sắc bài tập:", progressData);
+}
                 updateProblemColor(); // Cập nhật màu ngay khi hiển thị
 
                 problemBox.addEventListener("click", async () => {
