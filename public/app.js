@@ -713,34 +713,39 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
 });
 
 // Hàm tải tiến trình từ GitHub
-async function loadProgress() {
+async function loadProgress(studentId) {
     try {
-        console.log("📥 Đang tải tiến trình từ GitHub...");
+        console.log(`📥 Đang tải tiến trình từ GitHub cho học sinh: ${studentId}...`);
 
-        const response = await fetch(GITHUB_SAVE_PROGRESS_URL, {
+        // ✅ Tải mỗi học sinh từ một file riêng `<studentId>.json`
+        const studentProgressUrl = `${GITHUB_SAVE_PROGRESS_URL.replace('progress.json', `${studentId}.json`)}`;
+
+        const response = await fetch(studentProgressUrl, {
             headers: { 'Accept': 'application/vnd.github.v3+json' }
         });
 
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            console.warn(`⚠ Không có dữ liệu tiến trình cho học sinh ${studentId}. Khởi tạo tiến trình mới.`);
+            progressData = {}; // Nếu không có dữ liệu, đặt lại rỗng
+            return;
         }
 
         const data = await response.json();
         if (data && data.content) {
-            const decodedContent = atob(data.content);
-            progressData = JSON.parse(decodedContent);
-            console.log("✅ Tiến trình đã tải thành công:", progressData);
+            progressData = JSON.parse(atob(data.content));
+            console.log(`✅ Tiến trình của học sinh ${studentId} đã tải thành công:`, progressData);
         } else {
-            console.warn("⚠ Không có dữ liệu từ GitHub.");
+            console.warn(`⚠ Tiến trình rỗng cho học sinh ${studentId}.`);
             progressData = {};
         }
 
-        displayProblemList(); // Hiển thị danh sách bài tập sau khi tải tiến trình
+        displayProblemList(); // Cập nhật danh sách bài tập theo tiến trình mới
     } catch (error) {
-        console.error("❌ Không thể tải tiến trình:", error);
+        console.error("❌ Lỗi khi tải tiến trình:", error);
         progressData = {};
     }
 }
+
 
 // Hàm hiển thị danh sách bài tập từ Google Sheets
 async function displayProblemList() {
