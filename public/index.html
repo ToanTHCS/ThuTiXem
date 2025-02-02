@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vercel API Test</title>
+</head>
+<body>
+    <h1>Test API trên Vercel</h1>
+    <button onclick="callAPI()">Gọi API</button>
+    <p id="output">Kết quả API sẽ hiển thị ở đây...</p>
+
+    <script>
+        function callAPI() {
+            fetch("/api/hello")
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("output").innerText = `API trả về: ${JSON.stringify(data)}`;
+                })
+                .catch(error => {
+                    document.getElementById("output").innerText = `Lỗi: ${error}`;
+                });
+        }
+    </script>
+</body>
+</html>
