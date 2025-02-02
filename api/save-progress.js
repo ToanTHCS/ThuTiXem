@@ -1,5 +1,5 @@
 const GITHUB_SAVE_PROGRESS_URL = 'https://api.github.com/repos/ToanTHCS/ThuTiXem/contents/progress.json';
-const GITHUB_TOKEN = process.env.GITHUB_TOKEN; // ✅ Chỉ lấy biến môi trường ở server-side
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN; // ✅ Biến môi trường chỉ được dùng trên server-side
 
 export default async function handler(req, res) {
     if (!GITHUB_TOKEN) {
@@ -19,12 +19,12 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: "Dữ liệu không hợp lệ hoặc thiếu `studentId`." });
     }
 
+    let existingData = {};
     let sha = null;
-    const studentProgressUrl = GITHUB_SAVE_PROGRESS_URL.replace('progress.json', `${studentId}.json`);
 
     try {
-        console.log("📥 [API] Đang lấy SHA của file JSON...");
-        const shaResponse = await fetch(studentProgressUrl, {
+        console.log("📥 [API] Đang lấy dữ liệu `progress.json` từ GitHub...");
+        const shaResponse = await fetch(GITHUB_SAVE_PROGRESS_URL, {
             headers: {
                 'Accept': 'application/vnd.github.v3+json',
                 'Authorization': `Bearer ${GITHUB_TOKEN}`
@@ -34,24 +34,28 @@ export default async function handler(req, res) {
         if (shaResponse.ok) {
             const shaData = await shaResponse.json();
             sha = shaData.sha || null;
-            console.log("✅ SHA hiện tại:", sha);
+            existingData = JSON.parse(atob(shaData.content)); // ✅ Giữ lại dữ liệu cũ để không ghi đè toàn bộ file
+            console.log("✅ Dữ liệu `progress.json` đã tải thành công.");
         } else if (shaResponse.status === 404) {
-            console.warn("⚠ File chưa tồn tại, sẽ tạo mới.");
+            console.warn("⚠ `progress.json` chưa tồn tại, sẽ tạo mới.");
         } else {
             const errorDetails = await shaResponse.json();
-            console.error("❌ Lỗi khi lấy SHA từ GitHub:", errorDetails);
-            return res.status(500).json({ error: "Lỗi khi lấy SHA từ GitHub.", details: errorDetails });
+            console.error("❌ Lỗi khi lấy dữ liệu từ GitHub:", errorDetails);
+            return res.status(500).json({ error: "Lỗi khi lấy dữ liệu từ GitHub.", details: errorDetails });
         }
     } catch (error) {
-        console.error("❌ Lỗi khi lấy SHA:", error);
-        return res.status(500).json({ error: "Lỗi khi lấy SHA." });
+        console.error("❌ Lỗi khi tải `progress.json`:", error);
+        return res.status(500).json({ error: "Lỗi khi tải `progress.json`." });
     }
 
-    try {
-        console.log("📤 [API] Đang ghi dữ liệu lên GitHub...");
-        const content = Buffer.from(JSON.stringify(progressData, null, 2)).toString('base64');
+    // ✅ Cập nhật hoặc thêm tiến trình của học sinh vào dữ liệu chung
+    existingData[studentId] = progressData;
 
-        const saveResponse = await fetch(studentProgressUrl, {
+    try {
+        console.log("📤 [API] Đang ghi dữ liệu `progress.json` lên GitHub...");
+        const content = Buffer.from(JSON.stringify(existingData, null, 2)).toString('base64');
+
+        const saveResponse = await fetch(GITHUB_SAVE_PROGRESS_URL, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
