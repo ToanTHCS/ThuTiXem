@@ -382,7 +382,6 @@ async function generateSimilarProblem(originalProblem) {
 async function saveProgress(progressData) {
     try {
         console.log("📤 [Client] Gửi dữ liệu lên server:", JSON.stringify(progressData, null, 2));
-
         const response = await fetch("/api/save-progress", {
             method: "POST",
             headers: {
