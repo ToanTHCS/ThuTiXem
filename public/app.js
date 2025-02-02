@@ -645,62 +645,83 @@ document.getElementById('deleteAllBtn').addEventListener('click', () => {
     alert('Đã xóa tất cả ảnh và bài giải.');
 });
 document.getElementById('loginBtn').addEventListener('click', async () => {
+    const studentId = document.getElementById('studentId').value.trim();
+
+    if (!studentId) {
+        alert('⚠ Vui lòng nhập mã học sinh.');
+        return;
+    }
+
+    console.log(`🔄 Đang xử lý đăng nhập cho: ${studentId}`);
+
     const sheetId = '165WblAAVsv_aUyDKjrdkMSeQ5zaLiUGNoW26ZFt5KWU'; // ID Google Sheet
     const sheetName = 'StudentProgress'; // Tên tab trong Google Sheet
     const sheetUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?sheet=${sheetName}&tqx=out:json`;
 
-    const studentId = document.getElementById('studentId').value.trim();
-    if (!studentId) {
-        alert('Vui lòng nhập mã học sinh.');
-        return;
-    }
     try {
+        // 🔹 Kiểm tra mã học sinh có tồn tại trên Google Sheet không
         const response = await fetch(sheetUrl);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
+
         const text = await response.text();
         const jsonDataMatch = text.match(/google\.visualization\.Query\.setResponse\(([\s\S\w]+)\)/);
         if (!jsonDataMatch) {
-            throw new Error('Không thể phân tích dữ liệu từ Google Sheet.');
+            throw new Error('❌ Không thể phân tích dữ liệu từ Google Sheet.');
         }
+
         const jsonData = JSON.parse(jsonDataMatch[1]);
         const rows = jsonData.table.rows;
+
         if (!rows || rows.length === 0) {
-            alert('Google Sheet không chứa dữ liệu lịch sử.');
+            alert('❌ Google Sheet không chứa dữ liệu lịch sử.');
             return;
         }
-        // Lọc thông tin theo mã học sinh
-        const studentData = rows.find(row => {
-            const sheetId = (row.c[0]?.v || '').toString().trim();
-            return sheetId === studentId;
-        });
+
+        // 🔹 Kiểm tra xem mã học sinh có trong dữ liệu không
+        const studentData = rows.find(row => (row.c[0]?.v || '').toString().trim() === studentId);
 
         if (!studentData) {
-            alert(`Không tìm thấy lịch sử cho mã học sinh: ${studentId}`);
+            alert(`❌ Không tìm thấy lịch sử cho mã học sinh: ${studentId}`);
             return;
         }
-        // Hiển thị tiến độ
+
+        // ✅ Cập nhật trạng thái học sinh hiện tại
+        if (currentStudentId !== studentId) {
+            console.log(`🔄 Đăng nhập mới: ${currentStudentId} → ${studentId}`);
+            progressData = {}; // Reset tiến trình cũ
+        }
+        currentStudentId = studentId;
+
+        // ✅ Hiển thị tiến độ từ Google Sheet
         document.getElementById('progressContainer').style.display = 'block';
-        document.getElementById('completedExercises').textContent = studentData.c[2]?.v || '0'; // Cột C: Số bài tập đã làm
-        document.getElementById('averageScore').textContent = studentData.c[3]?.v || '0'; // Cột D: Điểm trung bình
-        // Chuyển sang giao diện chính
+        document.getElementById('completedExercises').textContent = studentData.c[2]?.v || '0'; // Số bài đã làm
+        document.getElementById('averageScore').textContent = studentData.c[3]?.v || '0'; // Điểm trung bình
+
+        // ✅ Chuyển sang giao diện chính
         document.getElementById('loginContainer').style.display = 'none';
         document.getElementById('mainContent').style.display = 'block';
-	// Đảm bảo progressData được tải trước khi hiển thị danh sách bài tập
-            console.log('Đang tải tiến trình từ GitHub...');
-            await loadProgress();
-            console.log('Tiến trình tải xong, hiển thị danh sách bài tập...');
-            await displayProblemList();
-            console.log('Danh sách bài tập đã hiển thị');
 
-            alert(`Xin chào, học sinh ${studentId}! Tiến trình đã được tải.`);
+        // ✅ Tải tiến trình của học sinh từ GitHub
+        console.log(`📥 Đang tải tiến trình học tập của ${studentId} từ GitHub...`);
+        await loadProgress(studentId);
+
+        // ✅ Cập nhật danh sách bài tập
+        console.log(`📌 Đang hiển thị danh sách bài tập...`);
+        await displayProblemList();
+        console.log('✅ Danh sách bài tập đã cập nhật.');
+
+        // ✅ Cập nhật tiêu đề nút lấy bài ngẫu nhiên
+        document.getElementById('randomProblemBtn').textContent = `Lấy đề bài ngẫu nhiên (${currentStudentId})`;
+
+        alert(`🎉 Xin chào, học sinh ${studentId}! Tiến trình của bạn đã được tải thành công.`);
+
     } catch (error) {
-        console.error('Lỗi khi tải dữ liệu:', error);
-        alert(`Không thể tải tiến độ học tập. Chi tiết lỗi: ${error.message}`);
+        console.error('❌ Lỗi khi tải dữ liệu:', error);
+        alert(`❌ Không thể tải tiến độ học tập. Chi tiết lỗi: ${error.message}`);
     }
 });
-
 // Hàm tải tiến trình từ GitHub
 async function loadProgress() {
     try {
