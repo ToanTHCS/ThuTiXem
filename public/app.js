@@ -375,42 +375,27 @@ async function saveProgress(progressData) {
         return;
     }
 
-    // ✅ Kiểm tra biến môi trường GITHUB_TOKEN
-    if (typeof GITHUB_TOKEN === "undefined" || !GITHUB_TOKEN) {
-        console.error("❌ GITHUB_TOKEN không tồn tại hoặc không được định nghĩa.");
-        alert("❌ Lỗi: GITHUB_TOKEN chưa được cấu hình trên server. Không thể lưu tiến trình.");
-        return;
-    }
-
     try {
-        console.log(`📤 [Client] Gửi dữ liệu tiến trình của học sinh ${currentStudentId} lên GitHub...`);
+        console.log(`📤 [Client] Gửi dữ liệu tiến trình của học sinh ${currentStudentId} lên API...`);
 
-        // ✅ Đảm bảo mỗi học sinh có một file riêng
-        const studentProgressUrl = `${GITHUB_SAVE_PROGRESS_URL.replace('progress.json', `${currentStudentId}.json`)}`;
-
-        const response = await fetch(studentProgressUrl, {
-            method: "PUT",
+        const response = await fetch("/api/save-progress", {
+            method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${GITHUB_TOKEN}` // ✅ Truyền token đúng cách
             },
-            body: JSON.stringify({
-                message: `Cập nhật tiến trình của học sinh ${currentStudentId}`,
-                content: btoa(JSON.stringify(progressData, null, 2))
-            }),
+            body: JSON.stringify({ progressData, studentId: currentStudentId }), // ✅ Gửi studentId lên API
         });
 
         const result = await response.json();
+        console.log("📤 [Client] Response từ API:", result);
 
         if (!response.ok) {
-            console.error(`❌ Lỗi khi lưu tiến trình của học sinh ${currentStudentId}:`, result);
-            throw new Error(result.message || "Không thể lưu tiến trình.");
+            throw new Error("❌ Lỗi khi lưu tiến trình vào GitHub.");
         }
 
-        console.log(`✅ Tiến trình của học sinh ${currentStudentId} đã lưu thành công!`, result);
-        alert(`✅ Tiến trình của ${currentStudentId} đã được lưu.`);
+        alert("✅ Tiến trình đã lưu thành công!");
     } catch (error) {
-        console.error(`❌ Lỗi khi ghi dữ liệu lên GitHub cho học sinh ${currentStudentId}:`, error);
+        console.error("❌ Lỗi khi ghi dữ liệu lên GitHub:", error);
         alert("❌ Lỗi khi ghi dữ liệu lên GitHub! Kiểm tra console.");
     }
 }
