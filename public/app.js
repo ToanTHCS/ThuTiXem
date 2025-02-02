@@ -375,17 +375,24 @@ async function saveProgress(progressData) {
         return;
     }
 
+    // ✅ Kiểm tra biến môi trường GITHUB_TOKEN
+    if (typeof GITHUB_TOKEN === "undefined" || !GITHUB_TOKEN) {
+        console.error("❌ GITHUB_TOKEN không tồn tại hoặc không được định nghĩa.");
+        alert("❌ Lỗi: GITHUB_TOKEN chưa được cấu hình trên server. Không thể lưu tiến trình.");
+        return;
+    }
+
     try {
         console.log(`📤 [Client] Gửi dữ liệu tiến trình của học sinh ${currentStudentId} lên GitHub...`);
 
-        // ✅ Lưu mỗi học sinh vào một file riêng theo `studentId`
+        // ✅ Đảm bảo mỗi học sinh có một file riêng
         const studentProgressUrl = `${GITHUB_SAVE_PROGRESS_URL.replace('progress.json', `${currentStudentId}.json`)}`;
 
         const response = await fetch(studentProgressUrl, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${GITHUB_TOKEN}`
+                "Authorization": `Bearer ${GITHUB_TOKEN}` // ✅ Truyền token đúng cách
             },
             body: JSON.stringify({
                 message: `Cập nhật tiến trình của học sinh ${currentStudentId}`,
@@ -394,12 +401,13 @@ async function saveProgress(progressData) {
         });
 
         const result = await response.json();
-        console.log(`✅ Tiến trình của học sinh ${currentStudentId} đã lưu thành công!`, result);
 
         if (!response.ok) {
-            throw new Error(`❌ Lỗi khi lưu tiến trình của học sinh ${currentStudentId}`);
+            console.error(`❌ Lỗi khi lưu tiến trình của học sinh ${currentStudentId}:`, result);
+            throw new Error(result.message || "Không thể lưu tiến trình.");
         }
 
+        console.log(`✅ Tiến trình của học sinh ${currentStudentId} đã lưu thành công!`, result);
         alert(`✅ Tiến trình của ${currentStudentId} đã được lưu.`);
     } catch (error) {
         console.error(`❌ Lỗi khi ghi dữ liệu lên GitHub cho học sinh ${currentStudentId}:`, error);
