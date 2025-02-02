@@ -516,33 +516,54 @@ async function saveProgress(progressData) {
         });
 	document.getElementById('selectProblemBtn').addEventListener('click', async () => {
     const problemIndexInput = document.getElementById('problemIndexInput').value.trim();
-    // Kiểm tra xem người dùng đã nhập số thứ tự hay chưa
+
+    // Kiểm tra nếu người dùng chưa nhập số thứ tự
     if (!problemIndexInput) {
-        alert('Vui lòng nhập số thứ tự bài cần chọn.');
+        alert('⚠ Vui lòng nhập số thứ tự bài cần chọn.');
         return;
     }
-    // Tìm bài tập theo số thứ tự
-    const selectedProblem = problems.find(problem => parseInt(problem.index) === parseInt(problemIndexInput));
-    if (selectedProblem) {
-        // Hiển thị đề bài
-        document.getElementById('problemText').innerHTML = formatProblemText(selectedProblem.problem);
-        // Gọi hàm generateHint() để tạo gợi ý
-        try {
-            currentHint = await generateHint(selectedProblem.problem);
-            console.log('Gợi ý cho bài tập đã chọn:', currentHint);
-        } catch (error) {
-            console.error('Lỗi khi tạo gợi ý:', error);
-            currentHint = null;
-        }
-        // Hiển thị nội dung MathJax
-        MathJax.typesetPromise([document.getElementById('problemText')]).catch(err => {
-            console.error('MathJax rendering error:', err);
-        });
-    } else {
-        // Không tìm thấy bài tập
-        document.getElementById('problemText').textContent = `Không tìm thấy bài tập với số thứ tự ${problemIndexInput}.`;
+
+    // Chuyển đổi thành số nguyên
+    const problemIndex = parseInt(problemIndexInput, 10);
+
+    // Kiểm tra nếu bài tập tồn tại trong danh sách
+    const selectedProblem = problems.find(problem => parseInt(problem.index) === problemIndex);
+    if (!selectedProblem) {
+        alert(`❌ Không tìm thấy bài tập với số thứ tự ${problemIndex}.`);
+        return;
     }
+
+    // Kiểm tra nếu bài tập đã làm (màu xanh)
+    if (progressData[problemIndex]) {
+        alert("📌 Bài tập này đã làm! Vui lòng chọn bài tập khác.");
+        return;
+    }
+
+    // Nếu bài chưa làm, hiển thị bài tập trong khung
+    document.getElementById('problemText').innerHTML = formatProblemText(selectedProblem.problem);
+
+    // Gọi hàm tạo gợi ý
+    try {
+        currentHint = await generateHint(selectedProblem.problem);
+        console.log('🔹 Gợi ý cho bài tập đã chọn:', currentHint);
+    } catch (error) {
+        console.error('❌ Lỗi khi tạo gợi ý:', error);
+        currentHint = null;
+    }
+
+    // Cập nhật trạng thái: Đánh dấu bài đã làm
+    progressData[problemIndex] = true; 
+    updateProblemColor(problemIndex); 
+
+    // Lưu tiến trình lên GitHub
+    await saveProgress(progressData);
+
+    // Cập nhật hiển thị MathJax
+    MathJax.typesetPromise([document.getElementById('problemText')]).catch(err => {
+        console.error('MathJax rendering error:', err);
+    });
 });
+
 document.addEventListener('DOMContentLoaded', () => {
     const video = document.getElementById('cameraStream');
     const captureButton = document.getElementById('captureButton');
