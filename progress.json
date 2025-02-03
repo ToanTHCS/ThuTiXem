@@ -85,7 +85,7 @@
   },
   "HS002": {
     "1": true,
-    "2": false,
+    "2": true,
     "3": false,
     "4": false,
     "5": false,
@@ -118,7 +118,8 @@
     "32": false,
     "33": false,
     "HS002": {
-      "1": true
+      "1": true,
+      "2": true
     }
   }
 }
