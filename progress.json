@@ -6,7 +6,7 @@
     "4": true,
     "5": true,
     "6": true,
-    "7": false,
+    "7": true,
     "8": false,
     "9": false,
     "10": false,
@@ -32,6 +32,9 @@
     "30": false,
     "31": false,
     "32": false,
-    "33": false
+    "33": false,
+    "GV001": {
+      "7": true
+    }
   }
 }
